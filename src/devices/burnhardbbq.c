@@ -71,29 +71,29 @@ static int burnhardbbq_decode(r_device *decoder, bitbuffer_t *bitbuffer)
         float temp_c     = (temp_raw - 500) * 0.1f;
 
         char timer_str[6];
-        sprintf(timer_str, "%02x:%02x", b[3], b[4] & 0x7f);
+        snprintf(timer_str, sizeof(timer_str), "%02x:%02x", b[3], b[4] & 0x7f);
 
-        char *meat;
-        switch(b[5] >> 4) {
-            case 0: meat = "free"; break;
-            case 1: meat = "beef"; break;
-            case 2: meat = "veal"; break;
-            case 3: meat = "pork"; break;
-            case 4: meat = "chicken"; break;
-            case 5: meat = "lamb"; break;
-            case 6: meat = "fish"; break;
-            case 7: meat = "ham"; break;
-            default: meat = "";
+        char const *meat;
+        switch (b[5] >> 4) {
+        case 0: meat = "free"; break;
+        case 1: meat = "beef"; break;
+        case 2: meat = "veal"; break;
+        case 3: meat = "pork"; break;
+        case 4: meat = "chicken"; break;
+        case 5: meat = "lamb"; break;
+        case 6: meat = "fish"; break;
+        case 7: meat = "ham"; break;
+        default: meat = "";
         }
 
-        char *taste;
-        switch(b[5] & 0x0f) {
-            case 0: taste = "rare"; break;
-            case 1: taste = "medium rare"; break;
-            case 2: taste = "medium"; break;
-            case 3: taste = "medium well"; break;
-            case 4: taste = "well done"; break;
-            default: taste = "";
+        char const *taste;
+        switch (b[5] & 0x0f) {
+        case 0: taste = "rare"; break;
+        case 1: taste = "medium rare"; break;
+        case 2: taste = "medium"; break;
+        case 3: taste = "medium well"; break;
+        case 4: taste = "well done"; break;
+        default: taste = "";
         }
 
         /* clang-format off */
@@ -101,7 +101,7 @@ static int burnhardbbq_decode(r_device *decoder, bitbuffer_t *bitbuffer)
                 "model",             "",                     DATA_STRING, "BurnhardBBQ",
                 "id",                "ID",                   DATA_INT,    id,
                 "channel",           "Channel",              DATA_INT,    channel,
-                "temperature_C",     "Temperature",          DATA_COND,   temp_raw != 0, DATA_FORMAT, "%.01f C", DATA_DOUBLE, temp_c,
+                "temperature_C",     "Temperature",          DATA_COND,   temp_raw != 0, DATA_FORMAT, "%.1f C", DATA_DOUBLE, temp_c,
                 "setpoint_C",        "Temperature setpoint", DATA_FORMAT, "%.0f C", DATA_DOUBLE, setpoint_c,
                 "temperature_alarm", "Temperature alarm",    DATA_INT,    temp_alarm,
                 "timer",             "Timer",                DATA_STRING, timer_str,
@@ -119,7 +119,7 @@ static int burnhardbbq_decode(r_device *decoder, bitbuffer_t *bitbuffer)
     return ret;
 }
 
-static char *output_fields[] = {
+static char const *const output_fields[] = {
         "model",
         "id",
         "channel",
@@ -134,7 +134,7 @@ static char *output_fields[] = {
         NULL,
 };
 
-r_device burnhardbbq = {
+r_device const burnhardbbq = {
         .name        = "Burnhard BBQ thermometer",
         .modulation  = OOK_PULSE_PWM,
         .short_width = 240,
@@ -142,6 +142,5 @@ r_device burnhardbbq = {
         .sync_width  = 840,
         .reset_limit = 848,
         .decode_fn   = &burnhardbbq_decode,
-        .disabled    = 0,
         .fields      = output_fields,
 };

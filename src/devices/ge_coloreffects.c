@@ -19,9 +19,9 @@ Previous work decoding this device:
 #include "decoder.h"
 
 // Helper to access single bit (copied from bitbuffer.c)
-static inline int bit(const uint8_t *bytes, unsigned bit)
+static inline int bit(const uint8_t *bytes, unsigned b)
 {
-    return bytes[bit >> 3] >> (7 - (bit & 7)) & 1;
+    return bytes[b >> 3] >> (7 - (b & 7)) & 1;
 }
 
 /**
@@ -64,7 +64,7 @@ static int ge_coloreffects_decode(r_device *decoder, bitbuffer_t *bitbuffer, uns
     bitbuffer_t packet_bits = {0};
 
     ge_decode(bitbuffer, row, start_pos, &packet_bits);
-    //bitbuffer_print(&packet_bits);
+    //decoder_log_bitbuffer(decoder, 0, __func__, &packet_bits, "");
 
     /* From http://www.deepdarc.com/2010/11/27/hacking-christmas-lights/
      * Decoded frame format is:
@@ -97,13 +97,13 @@ static int ge_coloreffects_decode(r_device *decoder, bitbuffer_t *bitbuffer, uns
     uint8_t command = b[1];
 
     char cmd[7];
-    switch(command) {
-        case 0x5a:  snprintf(cmd, sizeof(cmd), "change");  break;
-        case 0xaa:  snprintf(cmd, sizeof(cmd), "on");      break;
-        case 0x55:  snprintf(cmd, sizeof(cmd), "off");     break;
-        default:
-            snprintf(cmd, sizeof(cmd), "0x%x", command);
-            break;
+    switch (command) {
+    case 0x5a: snprintf(cmd, sizeof(cmd), "change"); break;
+    case 0xaa: snprintf(cmd, sizeof(cmd), "on"); break;
+    case 0x55: snprintf(cmd, sizeof(cmd), "off"); break;
+    default:
+        snprintf(cmd, sizeof(cmd), "0x%x", command);
+        break;
     }
 
     // Format data
@@ -117,7 +117,6 @@ static int ge_coloreffects_decode(r_device *decoder, bitbuffer_t *bitbuffer, uns
 
     decoder_output_data(decoder, data);
     return 1;
-
 }
 
 /**
@@ -158,14 +157,14 @@ static int ge_coloreffects_callback(r_device *decoder, bitbuffer_t *bitbuffer)
     return events > 0 ? events : ret;
 }
 
-static char *output_fields[] = {
+static char const *const output_fields[] = {
         "model",
         "id",
         "command",
         NULL,
 };
 
-r_device ge_coloreffects = {
+r_device const ge_coloreffects = {
         .name        = "GE Color Effects",
         .modulation  = FSK_PULSE_PCM,
         .short_width = 52,
