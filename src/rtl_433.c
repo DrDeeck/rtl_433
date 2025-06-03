@@ -1862,6 +1862,13 @@ int main(int argc, char **argv) {
         for (void **iter = cfg->in_files.elems; iter && *iter; ++iter) {
             cfg->in_filename = *iter;
 
+            file_info_clear(&demod->load_info);
+            file_info_parse_filename(&demod->load_info, cfg->in_filename);
+            // apply file info or default
+            cfg->samp_rate        = demod->load_info.sample_rate ? demod->load_info.sample_rate : sample_rate_0;
+            cfg->center_frequency = demod->load_info.center_frequency ? demod->load_info.center_frequency : cfg->frequency[0];
+
+            FILE *in_file;
             if (strncmp(cfg->in_filename, "mqtt/rfraw:", 11) == 0) {
                 const char *errmsg;
 
@@ -1872,7 +1879,6 @@ int main(int argc, char **argv) {
                 demod->load_info.format = PULSE_OOK;
                 in_file = NULL;
             } else {
-                parse_file_info(cfg->in_filename, &demod->load_info);
                 if (strcmp(demod->load_info.path, "-") == 0) { /* read samples from stdin */
                     in_file = stdin;
                     cfg->in_filename = "<stdin>";

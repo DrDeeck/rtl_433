@@ -86,6 +86,7 @@ static void mqtt_client_event(struct mg_connection *nc, int ev, void *ev_data)
         }
         else {
             print_log(LOG_NOTICE, "MQTT", "MQTT Connection established.");
+            mg_mqtt_subscribe(nc, ctx->subscriptions, ctx->num_subscriptions, ++ctx->message_id);
             if (ctx->mqtt_opts.will_topic) {
                 ctx->message_id++;
                 mg_mqtt_publish(ctx->conn, ctx->mqtt_opts.will_topic, ctx->message_id, MG_MQTT_QOS(0) | MG_MQTT_RETAIN, mqtt_availability_online, strlen(mqtt_availability_online));
